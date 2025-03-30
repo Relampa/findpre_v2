@@ -16,22 +16,47 @@ export function PlayerTable() {
 
   const fetchPlayers = async () => {
     try {
+      console.log("Fetching players...");
       const response = await fetch("/api/players");
+      console.log("Response status:", response.status);
+      
+      const responseText = await response.text();
+      console.log("Response text:", responseText);
+      
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to fetch players");
+        throw new Error(`API error: ${response.status} - ${responseText}`);
       }
-      const { data } = await response.json();
-      setPlayers(data);
-      setError(null);
+      
+      const data = JSON.parse(responseText);
+      console.log("Parsed data:", data);
+      
+      if (data.data) {
+        setPlayers(data.data);
+        setError(null);
+      } else {
+        throw new Error("Invalid response format");
+      }
     } catch (err) {
       console.error("Error fetching players:", err);
       setError(err instanceof Error ? err.message : "Failed to load players");
+      toast.error("Oyuncular yüklenirken bir hata oluştu", {
+        duration: 3000,
+        position: "bottom-center",
+        style: {
+          background: "#1A1F2E",
+          color: "#fff",
+          border: "1px solid #374151",
+        },
+      });
     }
   };
 
   useEffect(() => {
     fetchPlayers();
+    
+    // Her 30 saniyede bir oyuncu listesini güncelle
+    const interval = setInterval(fetchPlayers, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   const handleAddClick = () => {
