@@ -139,7 +139,7 @@ export function PlayerTable({ filters }: PlayerTableProps) {
 
   // Oyuncuları filtreleme
   const filteredPlayers = players.filter((player) => {
-    const rankIndex = (rank: string) => ranks.indexOf(rank);
+    const rankIndex = (rank: ValorantRank) => ranks.indexOf(rank);
     const playerMinRankIndex = rankIndex(player.minRank);
     const playerMaxRankIndex = rankIndex(player.maxRank);
     const filterMinRankIndex = rankIndex(filters.minRank);

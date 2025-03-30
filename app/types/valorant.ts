@@ -18,12 +18,4 @@ export interface Player {
     name?: string | null;
     image?: string | null;
   };
-}
-
-// Re-export for type declarations
-declare global {
-  type GameMode = GameMode;
-  type ValorantRank = ValorantRank;
-  type AgeRange = AgeRange;
-  type Player = Player;
 } 

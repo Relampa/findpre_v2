@@ -1,4 +1,4 @@
-import { GameMode, ValorantRank } from "../types/valorant";
+import { GameMode, ValorantRank, AgeRange } from "../types/valorant";
 
 export const ranks: ValorantRank[] = [
   "Demir",
@@ -19,11 +19,9 @@ export const gameModes: GameMode[] = [
   "Ölüm Maçı",
 ];
 
-export const ageRanges = [
-  "Tümü",
-  "16-20",
+export const ageRanges: AgeRange[] = [
+  "18-20",
   "21-25",
-  "26+",
-] as const;
-
-export type AgeRange = typeof ageRanges[number]; 
+  "26-30",
+  "30+",
+]; 
