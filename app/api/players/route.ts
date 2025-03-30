@@ -3,8 +3,10 @@ import { prisma } from "@/app/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../lib/auth";
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const session = await getServerSession(authOptions);
+
     const players = await prisma.player.findMany({
       orderBy: {
         createdAt: "desc",
@@ -19,10 +21,6 @@ export async function GET() {
       },
     });
 
-    if (!players) {
-      return NextResponse.json({ error: "No players found" }, { status: 404 });
-    }
-
     return NextResponse.json(players);
   } catch (error) {
     console.error("Error fetching players:", error);
@@ -36,7 +34,8 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-    if (!session?.user?.id) {
+
+    if (!session || !session.user) {
       return NextResponse.json(
         { error: "You must be logged in to add a player" },
         { status: 401 }
@@ -44,21 +43,26 @@ export async function POST(request: Request) {
     }
 
     const data = await request.json();
+
+    // Validate required fields
+    if (!data.gameMode || !data.minRank || !data.maxRank || !data.ageRange) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
     const player = await prisma.player.create({
       data: {
         gameMode: data.gameMode,
-        lobbyCode: data.lobbyCode,
+        lobbyCode: data.lobbyCode || "",
         minRank: data.minRank,
         maxRank: data.maxRank,
         currentRank: data.minRank,
         ageRange: data.ageRange,
-        lookingFor: data.lookingFor,
+        lookingFor: data.lookingFor || 1,
         username: session.user.name || "Anonymous",
-        user: {
-          connect: {
-            id: session.user.id,
-          },
-        },
+        userId: session.user.id,
       },
       include: {
         user: {
