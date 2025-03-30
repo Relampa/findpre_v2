@@ -2,8 +2,9 @@
 
 import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { GameMode, Player, ValorantRank } from "../types/valorant";
+import { Player } from "../types/valorant";
 import { ranks, gameModes, ageRanges } from "../constants/valorant";
+import type { GameMode, ValorantRank, AgeRange } from "../constants/valorant";
 
 interface AddPlayerModalProps {
   isOpen: boolean;
@@ -12,7 +13,14 @@ interface AddPlayerModalProps {
 }
 
 export function AddPlayerModal({ isOpen, onClose, onAdd }: AddPlayerModalProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    gameMode: GameMode;
+    lobbyCode: string;
+    minRank: ValorantRank;
+    maxRank: ValorantRank;
+    ageRange: AgeRange;
+    lookingFor: number;
+  }>({
     gameMode: gameModes[0],
     lobbyCode: "",
     minRank: ranks[0],
@@ -72,7 +80,7 @@ export function AddPlayerModal({ isOpen, onClose, onAdd }: AddPlayerModalProps) 
                     <select
                       value={formData.gameMode}
                       onChange={(e) =>
-                        setFormData({ ...formData, gameMode: e.target.value })
+                        setFormData({ ...formData, gameMode: e.target.value as GameMode })
                       }
                       className="mt-1 block w-full rounded-md border-gray-600 bg-[#111827] text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     >
@@ -107,7 +115,7 @@ export function AddPlayerModal({ isOpen, onClose, onAdd }: AddPlayerModalProps) 
                       <select
                         value={formData.minRank}
                         onChange={(e) =>
-                          setFormData({ ...formData, minRank: e.target.value })
+                          setFormData({ ...formData, minRank: e.target.value as ValorantRank })
                         }
                         className="mt-1 block w-full rounded-md border-gray-600 bg-[#111827] text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
                       >
@@ -126,7 +134,7 @@ export function AddPlayerModal({ isOpen, onClose, onAdd }: AddPlayerModalProps) 
                       <select
                         value={formData.maxRank}
                         onChange={(e) =>
-                          setFormData({ ...formData, maxRank: e.target.value })
+                          setFormData({ ...formData, maxRank: e.target.value as ValorantRank })
                         }
                         className="mt-1 block w-full rounded-md border-gray-600 bg-[#111827] text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
                       >
@@ -146,7 +154,7 @@ export function AddPlayerModal({ isOpen, onClose, onAdd }: AddPlayerModalProps) 
                     <select
                       value={formData.ageRange}
                       onChange={(e) =>
-                        setFormData({ ...formData, ageRange: e.target.value })
+                        setFormData({ ...formData, ageRange: e.target.value as AgeRange })
                       }
                       className="mt-1 block w-full rounded-md border-gray-600 bg-[#111827] text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     >
