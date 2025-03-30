@@ -19,7 +19,7 @@ export default function RootLayout({
     <html lang="tr" className="dark">
       <body className={`${inter.className} bg-[#0B0E14] text-white min-h-screen`}>
         <Providers>
-          <main className="container mx-auto px-4 py-8">
+          <main className="min-h-screen">
             {children}
           </main>
         </Providers>

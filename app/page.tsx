@@ -1,16 +1,20 @@
 "use client";
 
+import { AuthButton } from "./components/AuthButton";
 import { PlayerSearch } from "./components/PlayerSearch";
 import { PlayerTable } from "./components/PlayerTable";
-import { AuthButton } from "./components/AuthButton";
 import { useState } from "react";
-import { GameMode, ValorantRank } from "./types/valorant";
+import type { GameMode, ValorantRank } from "./types/valorant";
 
 export default function Home() {
-  const [filters, setFilters] = useState({
-    gameMode: "Dereceli" as GameMode,
-    minRank: "Demir" as ValorantRank,
-    maxRank: "Radyant" as ValorantRank,
+  const [filters, setFilters] = useState<{
+    gameMode: GameMode;
+    minRank: ValorantRank;
+    maxRank: ValorantRank;
+  }>({
+    gameMode: "Dereceli",
+    minRank: "Demir",
+    maxRank: "Radyant",
   });
 
   const handleApplyFilters = (newFilters: typeof filters) => {
