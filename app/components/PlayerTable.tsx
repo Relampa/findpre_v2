@@ -154,62 +154,64 @@ export function PlayerTable({ filters }: PlayerTableProps) {
 
   return (
     <>
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
         <h2 className="text-xl font-bold text-white">Aktif Oyuncular</h2>
         <button
           onClick={handleAddClick}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
+          className="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white px-8 py-2.5 rounded-md font-medium transition-colors shadow-lg hover:shadow-blue-500/20"
         >
           Oyuncu Ara
         </button>
       </div>
 
       {error && (
-        <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-2 rounded-md mb-4">
+        <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded-md mb-6">
           {error}
         </div>
       )}
 
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left">
-          <thead className="text-xs uppercase bg-[#1A1F2E] text-gray-400">
-            <tr>
-              <th className="px-6 py-3">OYUN MODU</th>
-              <th className="px-6 py-3">LOBİ KODU</th>
-              <th className="px-6 py-3">MIN. - MAKS. RANK</th>
-              <th className="px-6 py-3">YAŞ ARALIĞI</th>
-              <th className="px-6 py-3">ARANAN</th>
-              <th className="px-6 py-3">TARİH</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredPlayers.map((player) => (
-              <tr
-                key={player.id}
-                className="border-b border-gray-700 hover:bg-[#1A1F2E]/50"
-              >
-                <td className="px-6 py-4">{player.gameMode}</td>
-                <td 
-                  className="px-6 py-4 text-blue-400 cursor-pointer hover:text-blue-300"
-                  onClick={() => handleCopyLobbyCode(player.lobbyCode)}
-                >
-                  {player.lobbyCode}
-                </td>
-                <td className="px-6 py-4">
-                  {player.minRank} - {player.maxRank}
-                </td>
-                <td className="px-6 py-4">{player.ageRange}</td>
-                <td className="px-6 py-4">+{player.lookingFor}</td>
-                <td className="px-6 py-4">
-                  {new Date(player.createdAt).toLocaleTimeString("tr-TR", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}
-                </td>
+      <div className="bg-[#1A1F2E] rounded-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="text-xs uppercase bg-[#0B0E14] text-gray-400">
+              <tr>
+                <th className="px-4 md:px-6 py-4">OYUN MODU</th>
+                <th className="px-4 md:px-6 py-4">LOBİ KODU</th>
+                <th className="px-4 md:px-6 py-4">MIN. - MAKS. RANK</th>
+                <th className="px-4 md:px-6 py-4">YAŞ ARALIĞI</th>
+                <th className="px-4 md:px-6 py-4">ARANAN</th>
+                <th className="px-4 md:px-6 py-4">TARİH</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-gray-700">
+              {filteredPlayers.map((player) => (
+                <tr
+                  key={player.id}
+                  className="hover:bg-[#0B0E14] transition-colors"
+                >
+                  <td className="px-4 md:px-6 py-4 whitespace-nowrap">{player.gameMode}</td>
+                  <td 
+                    className="px-4 md:px-6 py-4 text-blue-400 cursor-pointer hover:text-blue-300 transition-colors whitespace-nowrap"
+                    onClick={() => handleCopyLobbyCode(player.lobbyCode)}
+                  >
+                    {player.lobbyCode}
+                  </td>
+                  <td className="px-4 md:px-6 py-4 whitespace-nowrap">
+                    {player.minRank} - {player.maxRank}
+                  </td>
+                  <td className="px-4 md:px-6 py-4 whitespace-nowrap">{player.ageRange}</td>
+                  <td className="px-4 md:px-6 py-4 whitespace-nowrap">+{player.lookingFor}</td>
+                  <td className="px-4 md:px-6 py-4 whitespace-nowrap">
+                    {new Date(player.createdAt).toLocaleTimeString("tr-TR", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <AddPlayerModal

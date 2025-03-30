@@ -18,8 +18,8 @@ export default function Home() {
   };
 
   return (
-    <div className="space-y-8">
-      <header className="flex items-center justify-between">
+    <div className="min-h-screen bg-[#0B0E14] p-4 md:p-8 space-y-8">
+      <header className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-white">Findpre.com</h1>
           <p className="text-gray-400">Valorant Oyuncu Bulma Platformu</p>
