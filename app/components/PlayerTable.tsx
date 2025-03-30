@@ -12,49 +12,54 @@ export function PlayerTable() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [players, setPlayers] = useState<Player[]>([]);
-
-  // Sayfa yüklendiğinde oyuncuları getir
-  useEffect(() => {
-    fetchPlayers();
-  }, []);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchPlayers = async () => {
     try {
       const response = await fetch("/api/players");
+      if (!response.ok) {
+        throw new Error("Failed to fetch players");
+      }
       const data = await response.json();
       setPlayers(data);
-    } catch (error) {
-      console.error("Oyuncular yüklenirken hata oluştu:", error);
+    } catch (err) {
+      console.error("Error fetching players:", err);
+      setError("Failed to load players");
     }
   };
 
-  const handleAddPlayer = async (newPlayer: Omit<Player, "id" | "createdAt">) => {
-    try {
-      const response = await fetch("/api/players", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newPlayer),
-      });
-
-      if (!response.ok) {
-        throw new Error("Oyuncu eklenirken bir hata oluştu");
-      }
-
-      const addedPlayer = await response.json();
-      setPlayers([addedPlayer, ...players]);
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error("Oyuncu eklenirken hata oluştu:", error);
-    }
-  };
+  useEffect(() => {
+    fetchPlayers();
+  }, []);
 
   const handleAddClick = () => {
     if (!session) {
       setIsAlertOpen(true);
     } else {
       setIsModalOpen(true);
+    }
+  };
+
+  const handleAddPlayer = async (data: Omit<Player, "id" | "createdAt" | "userId">) => {
+    try {
+      const response = await fetch("/api/players", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to add player");
+      }
+
+      const newPlayer = await response.json();
+      setPlayers((prev) => [newPlayer, ...prev]);
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error("Error adding player:", err);
+      setError("Failed to add player");
     }
   };
 
@@ -71,13 +76,17 @@ export function PlayerTable() {
     });
   };
 
+  if (error) {
+    return <div className="text-red-500 text-center py-4">{error}</div>;
+  }
+
   return (
     <>
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-bold text-white">Aktif Oyuncular</h2>
         <button
           onClick={handleAddClick}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md font-medium"
+          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
         >
           Oyuncu Ara
         </button>

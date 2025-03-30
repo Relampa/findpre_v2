@@ -1,167 +1,203 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useState } from "react";
+import { Dialog, Transition } from "@headlessui/react";
 import { GameMode, Player, ValorantRank } from "../types/valorant";
+import { ranks, gameModes, ageRanges } from "../constants/valorant";
 
 interface AddPlayerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAdd: (player: Omit<Player, "id" | "createdAt">) => void;
+  onAdd: (player: Omit<Player, "id" | "createdAt" | "userId" | "user">) => void;
 }
 
 export function AddPlayerModal({ isOpen, onClose, onAdd }: AddPlayerModalProps) {
   const [formData, setFormData] = useState({
-    username: "",
-    gameMode: "Dereceli" as GameMode,
+    gameMode: gameModes[0],
     lobbyCode: "",
-    minRank: "Demir" as ValorantRank,
-    maxRank: "Demir" as ValorantRank,
-    currentRank: "Demir" as ValorantRank,
-    ageRange: "Tümü",
+    minRank: ranks[0],
+    maxRank: ranks[0],
+    ageRange: ageRanges[0],
     lookingFor: 1,
   });
 
-  const ranks: ValorantRank[] = [
-    "Demir",
-    "Bronz",
-    "Gümüş",
-    "Altın",
-    "Platin",
-    "Elmas",
-    "Yükselen",
-    "Ölümsüzlük",
-    "Radyant",
-  ];
-
-  const gameModes: GameMode[] = ["Dereceli", "Derecesiz", "Spike Rush", "Ölüm Maçı"];
-
-  if (!isOpen) return null;
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onAdd(formData);
-    onClose();
+    onAdd({
+      ...formData,
+      currentRank: formData.minRank,
+      username: "", // This will be set by the server
+    });
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-[#1A1F2E] rounded-lg p-6 w-full max-w-md">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-white">Oyuncu ara</h2>
-          <button onClick={onClose} className="text-gray-400 hover:text-white">
-            ✕
-          </button>
-        </div>
+    <Transition appear show={isOpen} as={Fragment}>
+      <Dialog as="div" className="relative z-10" onClose={onClose}>
+        <Transition.Child
+          as={Fragment}
+          enter="ease-out duration-300"
+          enterFrom="opacity-0"
+          enterTo="opacity-100"
+          leave="ease-in duration-200"
+          leaveFrom="opacity-100"
+          leaveTo="opacity-0"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-25" />
+        </Transition.Child>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">
-              Lobi kodu
-            </label>
-            <input
-              type="text"
-              value={formData.lobbyCode}
-              onChange={(e) => setFormData({ ...formData, lobbyCode: e.target.value })}
-              className="w-full bg-[#0B0E14] border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-400 mb-2">
-              Oyun modu
-            </label>
-            <select
-              value={formData.gameMode}
-              onChange={(e) => setFormData({ ...formData, gameMode: e.target.value as GameMode })}
-              className="w-full bg-[#0B0E14] border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+        <div className="fixed inset-0 overflow-y-auto">
+          <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <Transition.Child
+              as={Fragment}
+              enter="ease-out duration-300"
+              enterFrom="opacity-0 scale-95"
+              enterTo="opacity-100 scale-100"
+              leave="ease-in duration-200"
+              leaveFrom="opacity-100 scale-100"
+              leaveTo="opacity-0 scale-95"
             >
-              {gameModes.map((mode) => (
-                <option key={mode} value={mode}>
-                  {mode}
-                </option>
-              ))}
-            </select>
+              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-[#1A1F2E] p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Title
+                  as="h3"
+                  className="text-lg font-medium leading-6 text-white mb-4"
+                >
+                  Oyuncu İlanı Ekle
+                </Dialog.Title>
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400">
+                      Oyun Modu
+                    </label>
+                    <select
+                      value={formData.gameMode}
+                      onChange={(e) =>
+                        setFormData({ ...formData, gameMode: e.target.value })
+                      }
+                      className="mt-1 block w-full rounded-md border-gray-600 bg-[#111827] text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    >
+                      {gameModes.map((mode) => (
+                        <option key={mode} value={mode}>
+                          {mode}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400">
+                      Lobi Kodu
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.lobbyCode}
+                      onChange={(e) =>
+                        setFormData({ ...formData, lobbyCode: e.target.value })
+                      }
+                      className="mt-1 block w-full rounded-md border-gray-600 bg-[#111827] text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      required
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-400">
+                        Minimum Rank
+                      </label>
+                      <select
+                        value={formData.minRank}
+                        onChange={(e) =>
+                          setFormData({ ...formData, minRank: e.target.value })
+                        }
+                        className="mt-1 block w-full rounded-md border-gray-600 bg-[#111827] text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      >
+                        {ranks.map((rank) => (
+                          <option key={rank} value={rank}>
+                            {rank}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-400">
+                        Maksimum Rank
+                      </label>
+                      <select
+                        value={formData.maxRank}
+                        onChange={(e) =>
+                          setFormData({ ...formData, maxRank: e.target.value })
+                        }
+                        className="mt-1 block w-full rounded-md border-gray-600 bg-[#111827] text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                      >
+                        {ranks.map((rank) => (
+                          <option key={rank} value={rank}>
+                            {rank}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400">
+                      Yaş Aralığı
+                    </label>
+                    <select
+                      value={formData.ageRange}
+                      onChange={(e) =>
+                        setFormData({ ...formData, ageRange: e.target.value })
+                      }
+                      className="mt-1 block w-full rounded-md border-gray-600 bg-[#111827] text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    >
+                      {ageRanges.map((range) => (
+                        <option key={range} value={range}>
+                          {range}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-400">
+                      Aranan Oyuncu Sayısı
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="4"
+                      value={formData.lookingFor}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          lookingFor: parseInt(e.target.value),
+                        })
+                      }
+                      className="mt-1 block w-full rounded-md border-gray-600 bg-[#111827] text-white shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                    />
+                  </div>
+
+                  <div className="mt-6 flex justify-end space-x-3">
+                    <button
+                      type="button"
+                      onClick={onClose}
+                      className="rounded-md border border-gray-600 px-4 py-2 text-sm font-medium text-gray-400 hover:bg-gray-700"
+                    >
+                      İptal
+                    </button>
+                    <button
+                      type="submit"
+                      className="rounded-md bg-blue-500 px-4 py-2 text-sm font-medium text-white hover:bg-blue-600"
+                    >
+                      Ekle
+                    </button>
+                  </div>
+                </form>
+              </Dialog.Panel>
+            </Transition.Child>
           </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
-                Minimum Rank
-              </label>
-              <select
-                value={formData.minRank}
-                onChange={(e) => setFormData({ ...formData, minRank: e.target.value as ValorantRank })}
-                className="w-full bg-[#0B0E14] border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {ranks.map((rank) => (
-                  <option key={rank} value={rank}>
-                    {rank}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
-                Maksimum Rank
-              </label>
-              <select
-                value={formData.maxRank}
-                onChange={(e) => setFormData({ ...formData, maxRank: e.target.value as ValorantRank })}
-                className="w-full bg-[#0B0E14] border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {ranks.map((rank) => (
-                  <option key={rank} value={rank}>
-                    {rank}
-                  </option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
-                Oyuncu sayısı
-              </label>
-              <select
-                value={formData.lookingFor}
-                onChange={(e) => setFormData({ ...formData, lookingFor: Number(e.target.value) })}
-                className="w-full bg-[#0B0E14] border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {[1, 2, 3, 4].map((num) => (
-                  <option key={num} value={num}>
-                    {num}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-400 mb-2">
-                Yaş aralığı
-              </label>
-              <select
-                value={formData.ageRange}
-                onChange={(e) => setFormData({ ...formData, ageRange: e.target.value })}
-                className="w-full bg-[#0B0E14] border border-gray-700 rounded-md px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="Tümü">Tümü</option>
-                <option value="16-20">16-20</option>
-                <option value="21-25">21-25</option>
-                <option value="26+">26+</option>
-              </select>
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded-md font-medium mt-4"
-          >
-            Ara
-          </button>
-        </form>
-      </div>
-    </div>
+        </div>
+      </Dialog>
+    </Transition>
   );
 } 
