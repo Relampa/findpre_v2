@@ -4,7 +4,7 @@ import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { Player } from "../types/valorant";
 import { ranks, gameModes, ageRanges } from "../constants/valorant";
-import type { GameMode, ValorantRank, AgeRange } from "../constants/valorant";
+import type { GameMode, ValorantRank, AgeRange } from "../types/valorant";
 
 interface AddPlayerModalProps {
   isOpen: boolean;
