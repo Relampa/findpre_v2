@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { Player, GameMode, ValorantRank } from "../types/valorant";
 import { AddPlayerModal } from "./AddPlayerModal";
 import { AlertModal } from "./AlertModal";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster, toast } from "react-hot-toast";
 import { ranks } from "../constants/valorant";
 
 interface PlayerTableProps {
