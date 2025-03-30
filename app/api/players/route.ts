@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/app/lib/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/auth";
+import { authOptions } from "../../lib/auth";
 
 export async function GET() {
   try {
@@ -18,11 +18,16 @@ export async function GET() {
         },
       },
     });
+
+    if (!players) {
+      return NextResponse.json({ error: "No players found" }, { status: 404 });
+    }
+
     return NextResponse.json(players);
   } catch (error) {
-    console.error("Oyuncular yüklenirken hata:", error);
+    console.error("Error fetching players:", error);
     return NextResponse.json(
-      { error: "Oyuncular yüklenirken bir hata oluştu" },
+      { error: "Failed to fetch players" },
       { status: 500 }
     );
   }
@@ -31,10 +36,9 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const session = await getServerSession(authOptions);
-
     if (!session?.user?.id) {
       return NextResponse.json(
-        { error: "Oturum açmanız gerekiyor" },
+        { error: "You must be logged in to add a player" },
         { status: 401 }
       );
     }
@@ -42,7 +46,6 @@ export async function POST(request: Request) {
     const data = await request.json();
     const player = await prisma.player.create({
       data: {
-        username: session.user.name || "Anonim",
         gameMode: data.gameMode,
         lobbyCode: data.lobbyCode,
         minRank: data.minRank,
@@ -50,7 +53,12 @@ export async function POST(request: Request) {
         currentRank: data.minRank,
         ageRange: data.ageRange,
         lookingFor: data.lookingFor,
-        userId: session.user.id,
+        username: session.user.name || "Anonymous",
+        user: {
+          connect: {
+            id: session.user.id,
+          },
+        },
       },
       include: {
         user: {
@@ -64,9 +72,9 @@ export async function POST(request: Request) {
 
     return NextResponse.json(player);
   } catch (error) {
-    console.error("Oyuncu eklenirken hata:", error);
+    console.error("Error creating player:", error);
     return NextResponse.json(
-      { error: "Oyuncu eklenirken bir hata oluştu" },
+      { error: "Failed to create player" },
       { status: 500 }
     );
   }
