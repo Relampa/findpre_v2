@@ -18,13 +18,15 @@ export function PlayerTable() {
     try {
       const response = await fetch("/api/players");
       if (!response.ok) {
-        throw new Error("Failed to fetch players");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch players");
       }
-      const data = await response.json();
+      const { data } = await response.json();
       setPlayers(data);
+      setError(null);
     } catch (err) {
       console.error("Error fetching players:", err);
-      setError("Failed to load players");
+      setError(err instanceof Error ? err.message : "Failed to load players");
     }
   };
 
@@ -40,7 +42,7 @@ export function PlayerTable() {
     }
   };
 
-  const handleAddPlayer = async (data: Omit<Player, "id" | "createdAt" | "userId">) => {
+  const handleAddPlayer = async (data: Omit<Player, "id" | "createdAt" | "userId" | "user">) => {
     try {
       const response = await fetch("/api/players", {
         method: "POST",
@@ -51,15 +53,35 @@ export function PlayerTable() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to add player");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to add player");
       }
 
-      const newPlayer = await response.json();
+      const { data: newPlayer } = await response.json();
       setPlayers((prev) => [newPlayer, ...prev]);
       setIsModalOpen(false);
+      toast.success("Oyuncu ilanı başarıyla eklendi!", {
+        duration: 2000,
+        position: "bottom-center",
+        style: {
+          background: "#1A1F2E",
+          color: "#fff",
+          border: "1px solid #374151",
+        },
+      });
     } catch (err) {
       console.error("Error adding player:", err);
-      setError("Failed to add player");
+      const errorMessage = err instanceof Error ? err.message : "Failed to add player";
+      setError(errorMessage);
+      toast.error(errorMessage, {
+        duration: 3000,
+        position: "bottom-center",
+        style: {
+          background: "#1A1F2E",
+          color: "#fff",
+          border: "1px solid #374151",
+        },
+      });
     }
   };
 
@@ -76,10 +98,6 @@ export function PlayerTable() {
     });
   };
 
-  if (error) {
-    return <div className="text-red-500 text-center py-4">{error}</div>;
-  }
-
   return (
     <>
       <div className="flex justify-between items-center mb-4">
@@ -91,6 +109,12 @@ export function PlayerTable() {
           Oyuncu Ara
         </button>
       </div>
+
+      {error && (
+        <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-2 rounded-md mb-4">
+          {error}
+        </div>
+      )}
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm text-left">
