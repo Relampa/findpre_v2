@@ -1,26 +1,41 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GameMode, ValorantRank } from "../types/valorant";
+import { ranks, gameModes } from "../constants/valorant";
 
-export function PlayerSearch() {
-  const [gameMode, setGameMode] = useState<GameMode>("Dereceli");
-  const [minRank, setMinRank] = useState<ValorantRank>("Demir");
-  const [maxRank, setMaxRank] = useState<ValorantRank>("Radyant");
+interface PlayerSearchProps {
+  filters: {
+    gameMode: GameMode;
+    minRank: ValorantRank;
+    maxRank: ValorantRank;
+  };
+  onApplyFilters: (filters: {
+    gameMode: GameMode;
+    minRank: ValorantRank;
+    maxRank: ValorantRank;
+  }) => void;
+}
 
-  const ranks: ValorantRank[] = [
-    "Demir",
-    "Bronz",
-    "Gümüş",
-    "Altın",
-    "Platin",
-    "Elmas",
-    "Yükselen",
-    "Ölümsüzlük",
-    "Radyant",
-  ];
+export function PlayerSearch({ filters, onApplyFilters }: PlayerSearchProps) {
+  const [gameMode, setGameMode] = useState<GameMode>(filters.gameMode);
+  const [minRank, setMinRank] = useState<ValorantRank>(filters.minRank);
+  const [maxRank, setMaxRank] = useState<ValorantRank>(filters.maxRank);
 
-  const gameModes: GameMode[] = ["Dereceli", "Derecesiz", "Spike Rush", "Ölüm Maçı"];
+  // Dışarıdan gelen filtreler değiştiğinde state'i güncelle
+  useEffect(() => {
+    setGameMode(filters.gameMode);
+    setMinRank(filters.minRank);
+    setMaxRank(filters.maxRank);
+  }, [filters]);
+
+  const handleApply = () => {
+    onApplyFilters({
+      gameMode,
+      minRank,
+      maxRank,
+    });
+  };
 
   return (
     <div className="bg-[#1A1F2E] rounded-lg p-6 space-y-4">
@@ -78,7 +93,10 @@ export function PlayerSearch() {
       </div>
 
       <div className="flex justify-end">
-        <button className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md font-medium">
+        <button 
+          onClick={handleApply}
+          className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md font-medium"
+        >
           Uygula / Yenile
         </button>
       </div>

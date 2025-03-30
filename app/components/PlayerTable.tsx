@@ -2,12 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { useSession, signIn } from "next-auth/react";
-import { Player } from "../types/valorant";
+import { Player, GameMode, ValorantRank } from "../types/valorant";
 import { AddPlayerModal } from "./AddPlayerModal";
 import { AlertModal } from "./AlertModal";
 import toast, { Toaster } from "react-hot-toast";
+import { ranks } from "../constants/valorant";
 
-export function PlayerTable() {
+interface PlayerTableProps {
+  filters: {
+    gameMode: GameMode;
+    minRank: ValorantRank;
+    maxRank: ValorantRank;
+  };
+}
+
+export function PlayerTable({ filters }: PlayerTableProps) {
   const { data: session } = useSession();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
@@ -58,6 +67,11 @@ export function PlayerTable() {
     const interval = setInterval(fetchPlayers, 30000);
     return () => clearInterval(interval);
   }, []);
+
+  // Filtreler değiştiğinde oyuncuları yeniden getir
+  useEffect(() => {
+    fetchPlayers();
+  }, [filters]);
 
   const handleAddClick = () => {
     if (!session) {
@@ -123,6 +137,21 @@ export function PlayerTable() {
     });
   };
 
+  // Oyuncuları filtreleme
+  const filteredPlayers = players.filter((player) => {
+    const rankIndex = (rank: string) => ranks.indexOf(rank);
+    const playerMinRankIndex = rankIndex(player.minRank);
+    const playerMaxRankIndex = rankIndex(player.maxRank);
+    const filterMinRankIndex = rankIndex(filters.minRank);
+    const filterMaxRankIndex = rankIndex(filters.maxRank);
+
+    return (
+      player.gameMode === filters.gameMode &&
+      playerMinRankIndex >= filterMinRankIndex &&
+      playerMaxRankIndex <= filterMaxRankIndex
+    );
+  });
+
   return (
     <>
       <div className="flex justify-between items-center mb-4">
@@ -154,7 +183,7 @@ export function PlayerTable() {
             </tr>
           </thead>
           <tbody>
-            {players.map((player) => (
+            {filteredPlayers.map((player) => (
               <tr
                 key={player.id}
                 className="border-b border-gray-700 hover:bg-[#1A1F2E]/50"

@@ -6,7 +6,7 @@ import { Providers } from "./providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Premate.gg - Valorant Oyuncu Bulma Platformu",
+  title: "Findpre.com - Valorant Oyuncu Bulma Platformu",
   description: "Valorant için takım arkadaşı bulma platformu",
 };
 
