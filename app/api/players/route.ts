@@ -3,10 +3,8 @@ import { prisma } from "@/app/lib/prisma";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../lib/auth";
 
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const session = await getServerSession(authOptions);
-
     const players = await prisma.player.findMany({
       orderBy: {
         createdAt: "desc",
